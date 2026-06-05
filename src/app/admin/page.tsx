@@ -3,6 +3,68 @@
 import { useEffect, useState } from 'react'
 import type { Pietanza, Cucina } from '@/lib/supabase'
 
+type FormState = { nome: string; cucina: Cucina; attiva: boolean }
+
+function FormFields({
+  form,
+  setForm,
+  onSubmit,
+  onCancel,
+  label,
+}: {
+  form: FormState
+  setForm: React.Dispatch<React.SetStateAction<FormState>>
+  onSubmit: (e: React.FormEvent) => void
+  onCancel: () => void
+  label: string
+}) {
+  return (
+    <form onSubmit={onSubmit} className="bg-gray-700 p-6 rounded-xl flex flex-col gap-4 mt-4">
+      <input
+        required
+        type="text"
+        placeholder="Nome pietanza"
+        value={form.nome}
+        onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
+        className="bg-gray-600 text-white text-xl p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+        autoFocus
+      />
+      <select
+        value={form.cucina}
+        onChange={e => setForm(f => ({ ...f, cucina: e.target.value as Cucina }))}
+        className="bg-gray-600 text-white text-xl p-3 rounded-lg outline-none"
+      >
+        <option value="interna">🍳 Cucina Interna</option>
+        <option value="esterna">🔥 Cucina Esterna</option>
+      </select>
+      <label className="flex items-center gap-3 text-white text-xl cursor-pointer">
+        <input
+          type="checkbox"
+          checked={form.attiva}
+          onChange={e => setForm(f => ({ ...f, attiva: e.target.checked }))}
+          className="w-5 h-5"
+        />
+        Attiva
+      </label>
+      <div className="flex gap-3">
+        <button
+          type="submit"
+          className="flex-1 bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-3 rounded-xl transition-colors"
+        >
+          {label}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold py-3 rounded-xl transition-colors"
+        >
+          Annulla
+        </button>
+      </div>
+    </form>
+  )
+}
+
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
   const [password, setPassword] = useState('')
@@ -10,7 +72,7 @@ export default function AdminPage() {
   const [pietanze, setPietanze] = useState<Pietanza[]>([])
   const [loading, setLoading] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [form, setForm] = useState({ nome: '', cucina: 'interna' as Cucina, attiva: true })
+  const [form, setForm] = useState<FormState>({ nome: '', cucina: 'interna', attiva: true })
   const [showAdd, setShowAdd] = useState(false)
   const [msg, setMsg] = useState('')
 
@@ -115,50 +177,10 @@ export default function AdminPage() {
     )
   }
 
-  const FormFields = ({ onSubmit, label }: { onSubmit: (e: React.FormEvent) => void; label: string }) => (
-    <form onSubmit={onSubmit} className="bg-gray-700 p-6 rounded-xl flex flex-col gap-4 mt-4">
-      <input
-        required
-        type="text"
-        placeholder="Nome pietanza"
-        value={form.nome}
-        onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
-        className="bg-gray-600 text-white text-xl p-3 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <select
-        value={form.cucina}
-        onChange={e => setForm(f => ({ ...f, cucina: e.target.value as Cucina }))}
-        className="bg-gray-600 text-white text-xl p-3 rounded-lg outline-none"
-      >
-        <option value="interna">🍳 Cucina Interna</option>
-        <option value="esterna">🔥 Cucina Esterna</option>
-      </select>
-      <label className="flex items-center gap-3 text-white text-xl cursor-pointer">
-        <input
-          type="checkbox"
-          checked={form.attiva}
-          onChange={e => setForm(f => ({ ...f, attiva: e.target.checked }))}
-          className="w-5 h-5"
-        />
-        Attiva
-      </label>
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          className="flex-1 bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-3 rounded-xl transition-colors"
-        >
-          {label}
-        </button>
-        <button
-          type="button"
-          onClick={() => { setShowAdd(false); setEditingId(null) }}
-          className="flex-1 bg-gray-600 hover:bg-gray-500 text-white text-xl font-bold py-3 rounded-xl transition-colors"
-        >
-          Annulla
-        </button>
-      </div>
-    </form>
-  )
+  function cancelForm() {
+    setShowAdd(false)
+    setEditingId(null)
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 p-6">
@@ -178,7 +200,7 @@ export default function AdminPage() {
         )}
 
         {showAdd && !editingId && (
-          <FormFields onSubmit={handleAdd} label="Aggiungi" />
+          <FormFields form={form} setForm={setForm} onSubmit={handleAdd} onCancel={cancelForm} label="Aggiungi" />
         )}
 
         {loading && <p className="text-gray-400 text-xl text-center py-8">Caricamento...</p>}
@@ -187,7 +209,7 @@ export default function AdminPage() {
           {pietanze.map(p => (
             <div key={p.id} className="bg-gray-800 rounded-xl p-5">
               {editingId === p.id ? (
-                <FormFields onSubmit={handleEdit} label="Salva" />
+                <FormFields form={form} setForm={setForm} onSubmit={handleEdit} onCancel={cancelForm} label="Salva" />
               ) : (
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
