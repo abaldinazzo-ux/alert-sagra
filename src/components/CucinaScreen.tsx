@@ -24,7 +24,7 @@ export default function CucinaScreen({ cucina }: Props) {
     setAlertAttivo(null)
     setCoda(prev => {
       const senzaDup = prev.filter(c => c.id !== chiamata.id)
-      return [chiamata, ...senzaDup].slice(0, 6)
+      return [chiamata, ...senzaDup].slice(0, 5)
     })
     if (alertTimer1.current) clearTimeout(alertTimer1.current)
     if (alertTimer2.current) clearTimeout(alertTimer2.current)
@@ -62,7 +62,7 @@ export default function CucinaScreen({ cucina }: Props) {
       .then((data: Chiamata[]) => {
         const acknowledged = data
           .filter(c => c.stato === 'acknowledged')
-          .slice(0, 6)
+          .slice(0, 5)
         setCoda(acknowledged)
       })
       .catch(() => {})
@@ -86,7 +86,7 @@ export default function CucinaScreen({ cucina }: Props) {
           if (audioEnabled) {
             attivaAlert(chiamata)
           } else {
-            setCoda(prev => [chiamata, ...prev].slice(0, 6))
+            setCoda(prev => [chiamata, ...prev].slice(0, 5))
           }
         }
       )
@@ -112,20 +112,34 @@ export default function CucinaScreen({ cucina }: Props) {
   }
 
   const label = cucina === 'interna' ? 'Cucina Interna' : 'Cucina Esterna'
-  const colorScheme = cucina === 'interna'
-    ? { bg: 'bg-gray-900', accent: 'text-orange-400', badge: 'bg-orange-600' }
-    : { bg: 'bg-gray-900', accent: 'text-red-400', badge: 'bg-red-700' }
+  const scheme = cucina === 'interna'
+    ? {
+        bg: 'bg-gray-950',
+        accent: 'text-orange-400',
+        rowBg: 'bg-orange-950',
+        rowBgAlt: 'bg-orange-900',
+        rowBorder: 'border-orange-700',
+        timeFg: 'text-orange-300',
+      }
+    : {
+        bg: 'bg-gray-950',
+        accent: 'text-red-400',
+        rowBg: 'bg-red-950',
+        rowBgAlt: 'bg-red-900',
+        rowBorder: 'border-red-700',
+        timeFg: 'text-red-300',
+      }
 
   // Overlay attivazione audio
   if (!audioEnabled) {
     return (
       <div
-        className={`min-h-screen ${colorScheme.bg} flex flex-col items-center justify-center cursor-pointer select-none`}
+        className={`min-h-screen ${scheme.bg} flex flex-col items-center justify-center cursor-pointer select-none`}
         onClick={attivaAudio}
       >
         <div className="text-center p-12">
           <div className="text-8xl mb-8">{cucina === 'interna' ? '🍳' : '🔥'}</div>
-          <h1 className={`text-5xl font-bold ${colorScheme.accent} mb-6`}>{label}</h1>
+          <h1 className={`text-5xl font-bold ${scheme.accent} mb-6`}>{label}</h1>
           <div className="bg-gray-800 rounded-3xl px-12 py-8 mt-4">
             <p className="text-white text-4xl font-bold">Tocca per attivare</p>
             <p className="text-gray-400 text-2xl mt-3">Necessario per abilitare i suoni di allerta</p>
@@ -163,47 +177,61 @@ export default function CucinaScreen({ cucina }: Props) {
     )
   }
 
-  // Stato normale
+  // Stato normale — coda a tutto schermo
   return (
-    <div className={`min-h-screen ${colorScheme.bg} flex flex-col`}>
-      {/* Header */}
-      <div className={`flex items-center justify-between px-8 py-6 border-b border-gray-800`}>
-        <h1 className={`text-4xl font-bold ${colorScheme.accent}`}>
+    <div className={`h-screen ${scheme.bg} flex flex-col overflow-hidden`}>
+      {/* Header compatto */}
+      <div className="flex items-center justify-between px-8 py-3 border-b border-gray-800 shrink-0">
+        <h1 className={`text-2xl font-bold ${scheme.accent}`}>
           {cucina === 'interna' ? '🍳' : '🔥'} {label}
         </h1>
-        <div className="flex items-center gap-3">
-          <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
-          <span className="text-green-400 text-xl">In attesa</span>
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+          <span className="text-green-400 text-lg">In attesa</span>
         </div>
       </div>
 
-      {/* Area principale */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-9xl mb-6">{cucina === 'interna' ? '🍳' : '🔥'}</div>
-          <p className="text-gray-500 text-3xl">Nessuna richiesta in corso</p>
-        </div>
-      </div>
-
-      {/* Coda ultime chiamate */}
-      {coda.length > 0 && (
-        <div className="px-8 py-6 border-t border-gray-800">
-          <h3 className="text-gray-400 text-xl font-bold mb-4 uppercase tracking-wider">
-            Ultime chiamate
-          </h3>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            {coda.map((c, i) => (
-              <div
-                key={c.id}
-                className={`bg-gray-800 rounded-xl p-3 text-center ${i === 0 ? 'ring-2 ring-gray-600' : ''}`}
-              >
-                <p className="text-white text-lg font-bold leading-tight">{c.pietanza_nome}</p>
-                <p className="text-gray-400 text-sm mt-1">{formatTime(c.timestamp)}</p>
-              </div>
-            ))}
+      {/* Coda a tutto schermo */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {coda.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-gray-600 text-4xl font-semibold">In attesa di chiamate...</p>
           </div>
-        </div>
-      )}
+        ) : (
+          coda.map((c, i) => (
+            <div
+              key={c.id}
+              className={`
+                flex-1 flex items-center px-10 gap-8 min-h-0
+                border-b border-opacity-30 ${scheme.rowBorder}
+                ${i % 2 === 0 ? scheme.rowBg : scheme.rowBgAlt}
+              `}
+            >
+              {/* Numero posizione */}
+              <span className="text-gray-500 font-black shrink-0 select-none"
+                style={{ fontSize: 'clamp(1.5rem, 3vw, 2.5rem)' }}>
+                {i + 1}
+              </span>
+
+              {/* Nome pietanza */}
+              <span
+                className="text-white font-black leading-none flex-1 truncate"
+                style={{ fontSize: 'clamp(2.5rem, 6vw, 6rem)' }}
+              >
+                {c.pietanza_nome}
+              </span>
+
+              {/* Orario */}
+              <span
+                className={`${scheme.timeFg} font-bold shrink-0 tabular-nums`}
+                style={{ fontSize: 'clamp(1.8rem, 4vw, 4rem)' }}
+              >
+                {formatTime(c.timestamp)}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   )
 }
