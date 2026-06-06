@@ -185,9 +185,19 @@ export default function CucinaScreen({ cucina }: Props) {
         <h1 className={`text-2xl font-bold ${scheme.accent}`}>
           {cucina === 'interna' ? '🍳' : '🔥'} {label}
         </h1>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-          <span className="text-green-400 text-lg">In attesa</span>
+        <div className="flex items-center gap-4">
+          {coda.length > 0 && (
+            <button
+              onClick={() => setCoda([])}
+              className="flex items-center gap-1.5 bg-gray-700 hover:bg-gray-600 active:scale-95 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition-all"
+            >
+              🗑 Pulisci coda
+            </button>
+          )}
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+            <span className="text-green-400 text-lg">In attesa</span>
+          </div>
         </div>
       </div>
 
