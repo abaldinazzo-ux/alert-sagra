@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { getSupabase, type Chiamata, type Cucina } from '@/lib/supabase'
 import { playAlert, resumeAudioContext } from '@/lib/audio'
+import HomeButton from '@/components/HomeButton'
 
 interface Props {
   cucina: Cucina
@@ -137,6 +138,7 @@ export default function CucinaScreen({ cucina }: Props) {
         className={`min-h-screen ${scheme.bg} flex flex-col items-center justify-center cursor-pointer select-none`}
         onClick={attivaAudio}
       >
+        <HomeButton />
         <div className="text-center p-12">
           <div className="text-8xl mb-8">{cucina === 'interna' ? '🍳' : '🔥'}</div>
           <h1 className={`text-5xl font-bold ${scheme.accent} mb-6`}>{label}</h1>
@@ -153,6 +155,7 @@ export default function CucinaScreen({ cucina }: Props) {
   if (alertAttivo) {
     return (
       <div className="min-h-screen alert-pulse flex flex-col items-center justify-center p-8 select-none">
+        <HomeButton />
         <div className="text-center">
           <p className="text-white text-3xl font-bold mb-6 uppercase tracking-widest opacity-80">
             RICHIESTA URGENTE
@@ -180,6 +183,7 @@ export default function CucinaScreen({ cucina }: Props) {
   // Stato normale — coda a tutto schermo
   return (
     <div className={`h-screen ${scheme.bg} flex flex-col overflow-hidden`}>
+      <HomeButton />
       {/* Header compatto */}
       <div className="flex items-center justify-between px-8 py-3 border-b border-gray-800 shrink-0">
         <h1 className={`text-2xl font-bold ${scheme.accent}`}>

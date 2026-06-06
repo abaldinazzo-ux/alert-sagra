@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import type { Pietanza, Cucina } from '@/lib/supabase'
+import HomeButton from '@/components/HomeButton'
 
 type FormState = { nome: string; cucina: Cucina; attiva: boolean }
 
@@ -155,6 +156,7 @@ export default function AdminPage() {
   if (!authed) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+        <HomeButton />
         <form onSubmit={login} className="bg-gray-800 p-8 rounded-2xl flex flex-col gap-4 w-full max-w-sm">
           <h1 className="text-3xl font-bold text-white text-center">⚙️ Admin</h1>
           <input
@@ -184,6 +186,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 p-6">
+      <HomeButton />
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-4xl font-bold text-white">⚙️ Gestione Pietanze</h1>

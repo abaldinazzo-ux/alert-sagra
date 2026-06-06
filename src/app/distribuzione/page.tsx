@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { Pietanza } from '@/lib/supabase'
+import HomeButton from '@/components/HomeButton'
 
 export default function DistribuzionePage() {
   const [pietanze, setPietanze] = useState<Pietanza[]>([])
@@ -46,10 +47,10 @@ export default function DistribuzionePage() {
 
   return (
     <div className="min-h-screen bg-gray-900 p-6">
+      <HomeButton />
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-white">📢 Distribuzione</h1>
-          <Link href="/" className="text-gray-400 hover:text-white text-lg transition-colors">← Home</Link>
         </div>
 
         {loading && (
